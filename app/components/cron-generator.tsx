@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { XIcon } from "./icons/x-icon"
 import { InstagramIcon } from "./icons/instagram-icon"
 import { DiscordIcon } from "./icons/discord-icon"
@@ -9,9 +9,25 @@ import { LinkedInIcon } from "./icons/linkedin-icon"
 import { Avatar } from "./avatar"
 import { SocialIcon } from "./social-icon"
 import { CronForm } from "./cron-form"
+import { CronHistory } from "./cron-history"
+import type { CronHistoryEntry } from "../types/cron"
 
 export function CronGenerator() {
   const [generationCount, setGenerationCount] = useState(100)
+  const [history, setHistory] = useState<CronHistoryEntry[]>([])
+
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        const response = await fetch('/api/history')
+        const data = await response.json()
+        setHistory(data)
+      } catch (error) {
+        console.error('Error fetching history:', error)
+      }
+    }
+    fetchHistory()
+  }, [])
 
   const handleSuccess = (count: number) => {
     setGenerationCount(count)
@@ -29,6 +45,7 @@ export function CronGenerator() {
         </div>
         <div className="w-full">
           <CronForm onSuccess={handleSuccess} />
+          <CronHistory history={history} />
         </div>
         <div>
           <div className="flex items-center justify-center mt-8">
@@ -48,27 +65,6 @@ export function CronGenerator() {
           rel="noopener noreferrer"
           aria-label="X (formerly Twitter)"
           icon={<XIcon className="w-6 h-6" />}
-        />
-        <SocialIcon
-          href="https://instagram.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Instagram"
-          icon={<InstagramIcon className="w-6 h-6" />}
-        />
-        <SocialIcon
-          href="https://discord.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Discord"
-          icon={<DiscordIcon className="w-6 h-6" />}
-        />
-        <SocialIcon
-          href="https://facebook.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Facebook"
-          icon={<FacebookIcon className="w-6 h-6" />}
         />
         <SocialIcon
           href="https://linkedin.com"

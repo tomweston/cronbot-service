@@ -15,6 +15,7 @@ interface CronFormProps {
 export function CronForm({ onSuccess }: CronFormProps) {
   const [state, formAction, isPending] = useActionState(generateCronExpression, null)
   const [prompt, setPrompt] = useState('')
+  const [generatedPrompt, setGeneratedPrompt] = useState('')
   const [cronExpression, setCronExpression] = useState('')
   const [isNonsensical, setIsNonsensical] = useState(false)
   const [responseMessage, setResponseMessage] = useState('')
@@ -32,6 +33,7 @@ export function CronForm({ onSuccess }: CronFormProps) {
       }
       if (state.cronExpression) {
         setCronExpression(state.cronExpression)
+        setGeneratedPrompt(prompt)
         setIsNonsensical(state.isNonsensical || false)
         // Set the response message if it exists in the state
         if (state.responseMessage) {
@@ -47,7 +49,7 @@ export function CronForm({ onSuccess }: CronFormProps) {
         duration: 5000,
       })
     }
-  }, [state, toast, onSuccess])
+  }, [state, toast, onSuccess, prompt])
 
   const handleSubmit = async (formData: FormData) => {
     await formAction(formData)
@@ -107,7 +109,7 @@ export function CronForm({ onSuccess }: CronFormProps) {
             </div>
           )}
           
-          <p className="text-sm text-gray-400 mb-1">Generated Cron Expression:</p>
+          <p className="text-sm text-gray-400 mb-1">{generatedPrompt}</p>
           <p className={`text-lg font-mono ${isNonsensical ? 'text-purple-300' : 'text-white'}`}>{expression}</p>
           
           {comment && (

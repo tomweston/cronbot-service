@@ -2,6 +2,8 @@
 
 import { z } from 'zod'
 import { revalidatePath } from 'next/cache'
+import { headers } from 'next/headers'
+import { saveToHistory } from '../lib/history'
 
 // In-memory count of cron expressions generated
 let cronExpressionsGenerated = 100
@@ -119,6 +121,22 @@ export async function generateCronExpression(
         message: data.error || 'Failed to generate cron expression',
       }
     }
+
+    // Save to history with client metadata
+    const headersList = headers();
+    const userAgent = (await headersList).get('user-agent') || undefined;
+    const language = (await headersList).get('accept-language') || undefined;
+    
+    await saveToHistory({
+      prompt: prompt.toString(),
+      expression: data.completion,
+      isNonsensical: data.isNonsensical || false,
+      responseMessage: data.message,
+      comment: data.isNonsensical ? data.completion.split('#')[1]?.trim() : undefined,
+      userAgent,
+      language,
+      platform: process.platform
+    });
 
     // Increment the count
     cronExpressionsGenerated++
